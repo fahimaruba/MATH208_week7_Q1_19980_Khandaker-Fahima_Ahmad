@@ -1,160 +1,91 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
+import pandas as pd
+import matplotlib.pyplot as plt
 
-# C extensions
-*.so
+# Define a function to calculate mean
+def calculate_mean(data):
+    return sum(data) / len(data)
 
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
+# Define a function to calculate variance
+def calculate_variance(data):
+    mean = calculate_mean(data)
+    squared_diff = [(x - mean) ** 2 for x in data]
+    return sum(squared_diff) / (len(data) - 1)
 
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
+# Define a function to calculate standard deviation
+def calculate_std_deviation(data):
+    return calculate_variance(data) ** 0.5
 
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
+# Define a function to calculate z-scores
+def calculate_z_scores(data):
+    mean = calculate_mean(data)
+    std_dev = calculate_std_deviation(data)
+    return [(x - mean) / std_dev for x in data]
 
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
-cover/
+# Define a function to calculate median (𝑥)
+def calculate_median(data):
+    sorted_data = sorted(data)
+    n = len(data)
+    if n % 2 == 0:
+        median = (sorted_data[n // 2 - 1] + sorted_data[n // 2]) / 2
+    else:
+        median = sorted_data[n // 2]
+    return median
 
-# Translations
-*.mo
-*.pot
+# Define a function to calculate quartiles (𝑄1 and 𝑄3)
+def calculate_quartiles(data):
+    sorted_data = sorted(data)
+    n = len(data)
+    if n % 2 == 0:
+        lower_half = sorted_data[:n // 2]
+        upper_half = sorted_data[n // 2:]
+        q1 = calculate_median(lower_half)
+        q3 = calculate_median(upper_half)
+    else:
+        lower_half = sorted_data[:n // 2]
+        upper_half = sorted_data[n // 2 + 1:]
+        q1 = calculate_median(lower_half)
+        q3 = calculate_median(upper_half)
+    return q1, q3
 
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
+# Read data from the Excel file
+data = pd.read_excel("original_diabetes.xlsx")
 
-# Flask stuff:
-instance/
-.webassets-cache
+# Calculate statistics for "Glucose"
+glucose_data = data["Glucose"]
+glucose_mean = calculate_mean(glucose_data)
+glucose_variance = calculate_variance(glucose_data)
+glucose_std_deviation = calculate_std_deviation(glucose_data)
+glucose_z_scores = calculate_z_scores(glucose_data)
+glucose_median = calculate_median(glucose_data)
+glucose_q1, glucose_q3 = calculate_quartiles(glucose_data)
 
-# Scrapy stuff:
-.scrapy
+# Calculate statistics for "BloodPressure"
+blood_pressure_data = data["BloodPressure"]
+bp_mean = calculate_mean(blood_pressure_data)
+bp_variance = calculate_variance(blood_pressure_data)
+bp_std_deviation = calculate_std_deviation(blood_pressure_data)
+bp_z_scores = calculate_z_scores(blood_pressure_data)
+bp_median = calculate_median(blood_pressure_data)
+bp_q1, bp_q3 = calculate_quartiles(blood_pressure_data)
 
-# Sphinx documentation
-docs/_build/
+# Create boxplots
+plt.boxplot([glucose_data, blood_pressure_data], labels=["Glucose", "Blood Pressure"])
+plt.title("Boxplots of Glucose and Blood Pressure")
+plt.show()
 
-# PyBuilder
-.pybuilder/
-target/
+# Display the calculated statistics
+print("Statistics for Glucose:")
+print(f"Mean: {glucose_mean}")
+print(f"Variance: {glucose_variance}")
+print(f"Standard Deviation: {glucose_std_deviation}")
+print(f"Z-Scores: {glucose_z_scores}")
+print(f"Median (𝑥): {glucose_median}")
+print(f"Quartiles (𝑄1, 𝑄3): {glucose_q1}, {glucose_q3}")
 
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# IPython
-profile_default/
-ipython_config.py
-
-# pyenv
-#   For a library or package, you might want to ignore these files since the code is
-#   intended to run in multiple environments; otherwise, check them in:
-# .python-version
-
-# pipenv
-#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
-#   However, in case of collaboration, if having platform-specific dependencies or dependencies
-#   having no cross-platform support, pipenv may install dependencies that don't work, or not
-#   install all needed dependencies.
-#Pipfile.lock
-
-# poetry
-#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
-#   This is especially recommended for binary packages to ensure reproducibility, and is more
-#   commonly ignored for libraries.
-#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
-#poetry.lock
-
-# pdm
-#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
-#pdm.lock
-#   pdm stores project-wide configurations in .pdm.toml, but it is recommended to not include it
-#   in version control.
-#   https://pdm.fming.dev/#use-with-ide
-.pdm.toml
-
-# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
-__pypackages__/
-
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
-
-# SageMath parsed files
-*.sage.py
-
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-
-# pytype static type analyzer
-.pytype/
-
-# Cython debug symbols
-cython_debug/
-
-# PyCharm
-#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
-#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
-#  and can be added to the global gitignore or merged into this file.  For a more nuclear
-#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
-#.idea/
+print("\nStatistics for Blood Pressure:")
+print(f"Mean: {bp_mean}")
+print(f"Variance: {bp_variance}")
+print(f"Standard Deviation: {bp_std_deviation}")
+print(f"Z-Scores: {bp_z_scores}")
+print(f"Median (𝑥): {bp_median}")
+print(f"Quartiles (𝑄1, 𝑄3): {bp_q1}, {bp_q3}")
